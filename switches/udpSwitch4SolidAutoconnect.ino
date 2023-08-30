@@ -1,9 +1,6 @@
-#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
 #include <WiFiUdp.h>
 
-// Set WiFi credentials
-#define WIFI_SSID ""
-#define WIFI_PASS ""
 #define UDP_PORT 8286
 
 // UDP
@@ -31,20 +28,14 @@ void setup() {
   delay(100);
   digitalWrite(D6, LOW);
 
-  // Setup serial port
   Serial.begin(115200);
 
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("AP-NODEMCU", "12345678");
 
-  WiFi.setOutputPower(5);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(100);
-  }
-
-  // Begin listening to UDP port
   UDP.begin(UDP_PORT);
 }
+
 
 void loop() {
 
@@ -56,7 +47,6 @@ void loop() {
     if (len > 0) {
       packet[len] = '\0';
     }
-
 
     String cmd = charToString(packet);
 
