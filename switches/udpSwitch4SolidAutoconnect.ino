@@ -83,6 +83,8 @@ void loop() {
     }
 
     if (doSomeThing) {
+      delay(100);
+
       //get the local ip network
       IPAddress ip = WiFi.localIP();
       ip[3] = 255;  // change last octect for bradcast
@@ -94,23 +96,23 @@ void loop() {
       reply[2] = (s2) ? '1' : '0';
       reply[4] = (s3) ? '1' : '0';
       reply[6] = (s4) ? '1' : '0';
-      UDP.write(reply);
 
+      UDP.write(reply);
       UDP.endPacket();
     }
   }
 
-  delay(4);
+  delay(5);
 }
 
 String charToString(const char S[]) {
   byte at = 0;
   const char *p = S;
-  String D = "";
+  String result = "";
 
   while (*p++) {
-    D.concat(S[at++]);
+    result.concat(S[at++]);
   }
 
-  return D;
+  return result;
 }
