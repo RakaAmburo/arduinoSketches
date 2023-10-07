@@ -6,7 +6,7 @@ volatile  unsigned int irBuffer[maxLen];
 volatile unsigned int x = 0;
 
 void setup() {
-  Serial.begin(115200); 
+  Serial.begin(9600); 
   //by default reads pin 2
   attachInterrupt(0, rxIR_Interrupt_Handler, CHANGE);
 }

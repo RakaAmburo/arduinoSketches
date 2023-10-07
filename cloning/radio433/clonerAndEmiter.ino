@@ -34,6 +34,7 @@ void loop() {
   }
 
   if (command == "1") {
+    Serial.println(freeMemory());
     Serial.println("WAITING_4_SIGNAL");
     waitAndClone();
   } else if (command == "2") {
@@ -47,34 +48,37 @@ void loop() {
 
 void waitAndClone() {
   memset(signals, '\0', signalsSize);
-
+  signalsPointer = 0;
   // wait until a LOW signal is received
   int analogResult = 0;
   while (analogResult < 80) {
-
     analogResult = analogRead(analogPin);
   }
 
   // got HIGH; read the rest of the data into dataBuffer
-  for (int i = 0; i < 600; i = i + 2) {
+  for (int i = 0; i < signalsSize; i = i + 2) {
 
     dataCounter = 0;
     while (analogRead(analogPin) > upperThreshold && dataCounter < maxSignalLength)
       dataCounter++;
-
     signals[i] = dataCounter;
 
     // HIGH signal
     dataCounter = 0;
     while (analogRead(analogPin) < lowerThreshold && dataCounter < maxSignalLength)
       dataCounter++;
-
     signals[i + 1] = dataCounter;
+
+    if (signals[i] == maxSignalLength && signals[i + 1] == 0
+        || signals[i] == 0 && signals[i + 1] == maxSignalLength)
+      break;
+
+    signalsPointer = i;
   }
 
   //Serial.println("LOW,HIGH");
   delay(20);
-  int size = 600;
+  int size = signalsPointer;
   for (int i = 0; i < size; i = i + 2) {
     Serial.print(signals[i]);
     Serial.print(",");
