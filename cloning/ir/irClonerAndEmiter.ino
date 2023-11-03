@@ -25,7 +25,6 @@ void loop() {
 
   if (command == "1") {
     Serial.println(freeMemory());
-    Serial.println(WAITING_4_SIGNAL);
     irClone();
   } else if (command == "2") {
     Serial.println(freeMemory());
@@ -111,10 +110,22 @@ void readSignalsFromSerial() {
   }
 }
 
+//empty the sensor memory
+void irSensorFlush() {
+  attachInterrupt(0, rxIR_Interrupt_Handler, CHANGE);
+  delay(200);
+  if (signalsPointer > 0) {
+    delay(1000);
+    detachInterrupt(0);
+  }
+}
+
 void irClone() {
+  irSensorFlush();
   memset(signals, '\0', signalsSize);
   signalsPointer = 0;
   attachInterrupt(0, rxIR_Interrupt_Handler, CHANGE);
+  Serial.println(WAITING_4_SIGNAL);// Is ready when function is attached and sensor flushed
   delay(100);
 
   while (true) {
@@ -123,7 +134,7 @@ void irClone() {
       return;
     }
     if (signalsPointer > 0) {  //if a signal is captured
-      delay(5000);
+      delay(3000);//this could be potentialy less!
       detachInterrupt(0);                         //stop interrupts & capture until finshed here
       for (int i = 1; i < signalsPointer; i++) {  //now dump the times
         Serial.print(signals[i] - signals[i - 1]);
