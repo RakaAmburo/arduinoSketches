@@ -35,7 +35,6 @@ void loop() {
 
   if (command == "1") {
     Serial.println(freeMemory());
-    Serial.println("WAITING_4_SIGNAL");
     waitAndClone();
   } else if (command == "2") {
     Serial.println(freeMemory());
@@ -46,7 +45,16 @@ void loop() {
   delay(20);
 }
 
+void flush() {
+  int flushed = 0;
+  for (int i = 0; i < 2000; i++) {
+    flushed = analogRead(analogPin);
+  }
+}
+
 void waitAndClone() {
+  flush();
+  Serial.println("WAITING_4_SIGNAL");
   memset(signals, '\0', signalsSize);
   signalsPointer = 0;
   // wait until a LOW signal is received
