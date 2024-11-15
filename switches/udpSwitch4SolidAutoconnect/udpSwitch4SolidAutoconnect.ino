@@ -1,7 +1,9 @@
-#include <WiFiManager.h>
+#include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
 #define UDP_PORT 8286
+#define WIFI_SSID "MIWIFI_mcCb"
+#define WIFI_PASS "4ERT3RhP"
 
 // UDP
 WiFiUDP UDP;
@@ -30,8 +32,13 @@ void setup() {
 
   Serial.begin(115200);
 
-  WiFiManager wifiManager;
-  wifiManager.autoConnect("AP-NODEMCU", "12345678");
+  WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("CONNECTED");
 
   UDP.begin(UDP_PORT);
 }

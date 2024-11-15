@@ -6,12 +6,11 @@
 // Set WiFi credentials
 #define WIFI_SSID "MIWIFI_mcCb"
 #define WIFI_PASS "4ERT3RhP"
-#define UDP_PORT 8286
 SoftwareSerial SUART(D3, D4);  //SRX = D3, STX = D4
 const char* serverUrl = "http://192.168.1.135:8181/exec";
 
-//UDP
-WiFiUDP UDP;
+HTTPClient http;
+WiFiClient wifiClient;
 
 void setup() {
   Serial.begin(115200);
@@ -25,30 +24,23 @@ void setup() {
   }
 
   Serial.println("CONNECTED");
-  // Begin listening to UDP port
-  UDP.begin(UDP_PORT);
 }
 
 void loop() {
   if (SUART.available()) {
 
     String inputString = SUART.readString();
-    //get the local ip network
-    IPAddress ip = WiFi.localIP();
-    ip[3] = 255;  // change last octect for bradcast
-    UDP.beginPacket(ip, 8284);
     char message[inputString.length() + 1];
     inputString.toCharArray(message, inputString.length() + 1);
-    UDP.write(message);
-    UDP.endPacket();
+    sendExec(message);
   }
   delay(1000);
 }
 
-void sendExec() {
+void sendExec(String message) {
   http.begin(wifiClient, serverUrl);
   http.addHeader("Content-Type", "application/json");
-  String payload = "{\"possibleMessages\":[\"execute knock\"]}";
+  String payload = "{\"possibleMessages\":[\"execute knock\"],\"extras\": {\"knocks\": \"" + message + "\"}}";
   int httpCode = http.POST(payload);
   if (httpCode > 0) {
     String response = http.getString();

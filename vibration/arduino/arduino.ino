@@ -39,6 +39,7 @@ void loop() {
     // Starting over once max time reached
     if (elapsed > maxTimeBetweenNocks && message.length() > 0) {
       SUART.print(message);
+      Serial.println(message);
       message = "";
     }
     loops = 0;
