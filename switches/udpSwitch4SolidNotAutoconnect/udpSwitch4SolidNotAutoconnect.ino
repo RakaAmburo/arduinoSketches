@@ -2,8 +2,8 @@
 #include <WiFiUdp.h>
 
 #define UDP_PORT 8286
-#define WIFI_SSID "MIWIFI_mcCb"
-#define WIFI_PASS "4ERT3RhP"
+#define WIFI_SSID ""
+#define WIFI_PASS ""
 
 // UDP
 WiFiUDP UDP;
