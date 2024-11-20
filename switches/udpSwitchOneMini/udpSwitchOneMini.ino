@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <WiFiUDP.h>
 
-const char* ssid = "MIWIFI_mcCb";
-const char* password = "4ERT3RhP";
+const char* ssid = "";
+const char* password = "";
 #define UDP_PORT 8286;
 
 const int touchPin = 4;
