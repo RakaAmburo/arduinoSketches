@@ -2,8 +2,8 @@
 #include <WiFiUdp.h>
 
 // Set WiFi credentials
-#define WIFI_SSID "MIWIFI_mcCb"
-#define WIFI_PASS "4ERT3RhP"
+#define WIFI_SSID ""
+#define WIFI_PASS ""
 #define UDP_PORT 8286
 
 const int touchPin = D6;
