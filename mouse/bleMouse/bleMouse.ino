@@ -2,19 +2,26 @@
 
 const uint8_t JOYSTICK_X_PIN = 35;
 const uint8_t JOYSTICK_Y_PIN = 34;
-const uint8_t BUTTON_PIN = 33;
+const uint8_t LEFT_BUTTON_PIN = 33;
+const uint8_t RIGHT_BUTTON_PIN = 25;
+const uint8_t PAGE_UP_BUTTON_PIN = 26;
+const uint8_t PAGE_DOWN_BUTTON_PIN = 27;
 const int JOYSTICK_THRESHOLD = 10;  // Threshold to ignore small movements near the center
-const int BUTTON_THRESHOLD = 60;    // Threshold to double click in millis
+const int BUTTONS_THRESHOLD = 100;   // Threshold to double click in millis
 
 int16_t joystickXValue, joystickYValue;
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Staring mouse");
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LEFT_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(PAGE_UP_BUTTON_PIN, INPUT);
+  pinMode(PAGE_DOWN_BUTTON_PIN, INPUT);
+  pinMode(RIGHT_BUTTON_PIN, INPUT);
 
   Keyboard.begin();
   Mouse.begin();
+  
 }
 
 void loop() {
@@ -40,10 +47,35 @@ void loop() {
       moveMouseGradually(xMovement, yMovement);
     }
 
-    if (digitalRead(BUTTON_PIN) == LOW) {
+    if (digitalRead(LEFT_BUTTON_PIN) == LOW) {
       Mouse.click(MOUSE_LEFT);
       Serial.println("Left Mouse button clicked!");
-      delay(BUTTON_THRESHOLD);
+      delay(BUTTONS_THRESHOLD);
+    }
+
+    if (digitalRead(RIGHT_BUTTON_PIN) == LOW) {
+      Keyboard.press(KEY_LEFT_CTRL);
+      Mouse.click(MOUSE_LEFT);
+      delay(100);
+      Keyboard.release(KEY_LEFT_CTRL);
+      Serial.println("Ctrl + qRight Mouse button clicked!");
+      delay(BUTTONS_THRESHOLD);
+    }
+
+    if (digitalRead(PAGE_DOWN_BUTTON_PIN) == LOW) {
+      Keyboard.press(KEY_PAGE_DOWN);
+      delay(100);
+      Keyboard.release(KEY_PAGE_DOWN);
+      Serial.println("Page down pressed and released!");
+      delay(BUTTONS_THRESHOLD);
+    }
+
+    if (digitalRead(PAGE_UP_BUTTON_PIN) == LOW) {
+      Keyboard.press(KEY_PAGE_UP);
+      delay(100);
+      Keyboard.release(KEY_PAGE_UP);
+      Serial.println("Page up pressed and released!");
+      delay(BUTTONS_THRESHOLD);
     }
   }
   delay(12);
