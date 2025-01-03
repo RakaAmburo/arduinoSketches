@@ -6,10 +6,14 @@ const uint8_t LEFT_BUTTON_PIN = 33;
 const uint8_t RIGHT_BUTTON_PIN = 25;
 const uint8_t PAGE_UP_BUTTON_PIN = 26;
 const uint8_t PAGE_DOWN_BUTTON_PIN = 27;
-const int JOYSTICK_THRESHOLD = 10;  // Threshold to ignore small movements near the center
-const int BUTTONS_THRESHOLD = 100;   // Threshold to double click in millis
+const int JOYSTICK_THRESHOLD = 8;   // Threshold to ignore small movements near the center
+const int BUTTONS_THRESHOLD = 110;  // Threshold to double click in millis
+const int CONSECUTIVE_REQUIRED_POSITIVES = 6;
 
 int16_t joystickXValue, joystickYValue;
+int stableCountX = 0;
+int stableCountY = 0;
+unsigned long startTime;
 
 void setup() {
   Serial.begin(115200);
@@ -21,10 +25,28 @@ void setup() {
 
   Keyboard.begin();
   Mouse.begin();
-  
+}
+
+bool isStableSignal(int8_t reading, int &stableCount) {
+  if (abs(reading) > JOYSTICK_THRESHOLD) {
+    if (stableCount < CONSECUTIVE_REQUIRED_POSITIVES) {
+      stableCount++;
+    }
+  } else {
+    stableCount = 0;
+    return false;
+  }
+  return (stableCount == CONSECUTIVE_REQUIRED_POSITIVES);
 }
 
 void loop() {
+
+  unsigned long currentTime = millis();
+  if (currentTime - startTime >= 480000) {
+    Serial.println("Restarting after 5 minutes...");
+    ESP.restart();  
+  }
+
   if (Keyboard.isConnected()) {
     // Read joystick values
     joystickXValue = analogRead(JOYSTICK_X_PIN);
@@ -34,12 +56,12 @@ void loop() {
     int8_t xMovement = map(joystickXValue, 0, 4095, -127, 127);
     int8_t yMovement = map(joystickYValue, 0, 4095, -127, 127);
 
-    Serial.println("X mapped value: " + (String)xMovement);
-    Serial.println("Y mapped value: " + (String)yMovement);
-    Serial.println();
-
     // Remove noice from movement
-    if (abs(xMovement) > JOYSTICK_THRESHOLD || abs(yMovement) > JOYSTICK_THRESHOLD) {
+    if (isStableSignal(xMovement, stableCountX) || isStableSignal(yMovement, stableCountY)) {
+
+      Serial.println("X mapped value: " + (String)xMovement);
+      Serial.println("Y mapped value: " + (String)yMovement);
+      Serial.println();
 
       xMovement = abs(xMovement) > JOYSTICK_THRESHOLD ? xMovement : 0;
       yMovement = abs(yMovement) > JOYSTICK_THRESHOLD ? yMovement : 0;
