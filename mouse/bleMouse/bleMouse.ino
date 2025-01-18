@@ -7,7 +7,7 @@ const uint8_t RIGHT_BUTTON_PIN = 25;
 const uint8_t PAGE_UP_BUTTON_PIN = 26;
 const uint8_t PAGE_DOWN_BUTTON_PIN = 27;
 const int JOYSTICK_THRESHOLD = 8;   // Threshold to ignore small movements near the center
-const int BUTTONS_THRESHOLD = 110;  // Threshold to double click in millis
+const int BUTTONS_THRESHOLD = 300;  // Threshold to double click in millis
 const int CONSECUTIVE_REQUIRED_POSITIVES = 6;
 
 int16_t joystickXValue, joystickYValue;
