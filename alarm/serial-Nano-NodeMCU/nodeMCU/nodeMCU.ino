@@ -4,8 +4,8 @@
 #include <WiFiUdp.h>
 
 // Set WiFi credentials
-#define WIFI_SSID "MIWIFI_c4X3"
-#define WIFI_PASS "5UNCF2U7"
+#define WIFI_SSID ""
+#define WIFI_PASS ""
 #define UDP_PORT 8286
 SoftwareSerial SUART(D3, D4); //SRX = D3, STX = D4
 

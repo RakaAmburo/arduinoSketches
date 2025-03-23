@@ -1,4 +1,4 @@
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiUdp.h>
 
 #define UDP_PORT 8286
@@ -24,16 +24,16 @@ void setup() {
 
   pinMode(touch1Pin, INPUT);
   pinMode(touch2Pin, INPUT);
-  pinMode(D1, OUTPUT);
-  delay(100);
-  digitalWrite(D1, LOW);
   pinMode(D2, OUTPUT);
   delay(100);
   digitalWrite(D2, LOW);
+  pinMode(D3, OUTPUT);
+  delay(100);
+  digitalWrite(D3, LOW);
 
   Serial.begin(115200);
 
-  WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -67,16 +67,16 @@ void loop() {
     doSomeThing = (cmd.startsWith("LAUNDRY_")) ? true : false;
 
     if (cmd == "LAUNDRY_LIGHT_ON") {
-      digitalWrite(D1, HIGH);
+      digitalWrite(D2, HIGH);
       s1 = true;
     } else if (cmd == "LAUNDRY_LIGHT_OFF") {
-      digitalWrite(D1, LOW);
+      digitalWrite(D2, LOW);
       s1 = false;
     } else if (cmd == "LAUNDRY_FAN_ON") {
-      digitalWrite(D2, HIGH);
+      digitalWrite(D3, HIGH);
       s2 = true;
     } else if (cmd == "LAUNDRY_FAN_OFF") {
-      digitalWrite(D2, LOW);
+      digitalWrite(D3, LOW);
       s2 = false;
     } else if (cmd == "LAUNDRY_STATUS") {
       //DO NOTHING JUST SEND THE STATUS
@@ -97,7 +97,7 @@ void loop() {
       reply[0] = (s1) ? '1' : '0';
       reply[2] = (s2) ? '1' : '0';
 
-      UDP.write(reply);
+      UDP.write((uint8_t*)reply, strlen(reply));
       UDP.endPacket();
     }
   }
@@ -105,15 +105,15 @@ void loop() {
   if (touch1Status != touch1PrevStatus) {
     touch1PrevStatus = touch1Status;
     s1 = !s1;
-    digitalWrite(D1, s1);
-    Serial.println(s1);
+    digitalWrite(D2, s1);
+    //Serial.println(s1);
   }
   touch2Status = digitalRead(touch2Pin);
   if (touch2Status != touch2PrevStatus) {
     touch2PrevStatus = touch2Status;
     s2 = !s2;
-    digitalWrite(D2, s2);
-    Serial.println(s2);
+    digitalWrite(D3, s2);
+    //Serial.println(s2);
   }
   delay(10);
 }

@@ -1383,7 +1383,7 @@ void startCameraServer()
     }
 }
 
-void setupLedFlash(int pin) 
+void setupLedFlash(int pin)   
 {
     #if CONFIG_LED_ILLUMINATOR_ENABLED
     ledcSetup(LED_LEDC_CHANNEL, 5000, 8);
