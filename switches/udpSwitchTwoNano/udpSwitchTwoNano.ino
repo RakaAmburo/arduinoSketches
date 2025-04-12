@@ -2,8 +2,8 @@
 #include <WiFiUdp.h>
 
 #define UDP_PORT 8286
-#define WIFI_SSID ""
-#define WIFI_PASS ""
+#define WIFI_SSID "MIWIFI_mcCb"
+#define WIFI_PASS "4ERT3RhP"
 
 const int touch1Pin = D6;
 int touch1Status = HIGH;
@@ -11,6 +11,9 @@ int touch1PrevStatus = HIGH;
 const int touch2Pin = D5;
 int touch2Status = HIGH;
 int touch2PrevStatus = HIGH;
+
+unsigned long lastCheck = 0;
+const unsigned long checkInterval = 5000;
 
 // UDP
 WiFiUDP UDP;
@@ -33,13 +36,10 @@ void setup() {
 
   Serial.begin(115200);
 
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
 
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(1000);
-  }
-  Serial.println("CONNECTED");
+  wifiCheckAndConnect();
 
   UDP.begin(UDP_PORT);
 
@@ -52,6 +52,11 @@ void setup() {
 
 
 void loop() {
+
+  if (millis() - lastCheck > checkInterval) {
+    lastCheck = millis();
+    wifiCheckAndConnect();
+  }
 
   bool doSomeThing = false;
   //check and receive action signal from UDP
@@ -97,7 +102,7 @@ void loop() {
       reply[0] = (s1) ? '1' : '0';
       reply[2] = (s2) ? '1' : '0';
 
-      UDP.write((uint8_t*)reply, strlen(reply));
+      UDP.write((uint8_t *)reply, strlen(reply));
       UDP.endPacket();
     }
   }
@@ -128,4 +133,24 @@ String charToString(const char S[]) {
   }
 
   return result;
+}
+
+void wifiCheckAndConnect() {
+  while (WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    int attempts = 0;
+
+    while (WiFi.status() != WL_CONNECTED && attempts < 5) {
+      Serial.print(".");
+      delay(1000);
+      attempts++;
+    }
+
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("Retrying WiFi connection...");
+      delay(1000);
+    } else {
+      Serial.println("CONNECTED");
+    }
+  }
 }
