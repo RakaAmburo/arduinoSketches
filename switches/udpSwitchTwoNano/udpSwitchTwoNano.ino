@@ -12,8 +12,12 @@ const int touch2Pin = D5;
 int touch2Status = HIGH;
 int touch2PrevStatus = HIGH;
 
+const int initInterval = 5000;
+const int deleyedInterval = 60000;
 unsigned long lastCheck = 0;
-const unsigned long checkInterval = 5000;
+unsigned long checkInterval = initInterval;
+int connAttempts = 0;
+const int maxFiledAttempts = 10;
 
 // UDP
 WiFiUDP UDP;
@@ -136,21 +140,17 @@ String charToString(const char S[]) {
 }
 
 void wifiCheckAndConnect() {
-  while (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED) {
+    connAttempts++;
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    int attempts = 0;
+    //Serial.println("Connecting...");
 
-    while (WiFi.status() != WL_CONNECTED && attempts < 5) {
-      Serial.print(".");
-      delay(1000);
-      attempts++;
+    if (connAttempts > maxFiledAttempts){ 
+      checkInterval = deleyedInterval;
     }
-
-    if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("Retrying WiFi connection...");
-      delay(1000);
-    } else {
-      Serial.println("CONNECTED");
-    }
+  } else {
+    connAttempts = 0;
+    checkInterval = initInterval;
+    //Serial.println("Connected doing nothing");
   }
 }
