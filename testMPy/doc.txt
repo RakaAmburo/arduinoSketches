@@ -1,0 +1,23 @@
+
+https://micropython.org/download/
+esptool --port COM4 write_flash 0x1000 .\ESP8266_GENERIC-20251209-v1.27.0.bin
+
+
+
+1. mpremote connect COM4 cp main.py :
+2. mpremote connect COM4 repl
+3. (Editar main.py en VS Code y guardar)
+4. >>> import main
+5. >>> import importlib
+6. >>> importlib.reload(main)
+
+esptool --port COM4 --baud 460800 write_flash --flash_size=detect -fm dout 0 .\ESP8266_GENERIC-20251209-v1.27.0.bin
+
+mpremote connect list
+mpremote connect COM4 cp main.py :
+mpremote connect COM4 run main.py
+
+
+ESP32 WROOM BLE
+esptool --port COM5 erase_flash
+esptool.py --port COM5 --baud 460800 write_flash 0x1000 
