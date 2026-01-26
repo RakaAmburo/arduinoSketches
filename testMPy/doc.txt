@@ -20,4 +20,48 @@ mpremote connect COM4 run main.py
 
 ESP32 WROOM BLE
 esptool --port COM5 erase_flash
-esptool.py --port COM5 --baud 460800 write_flash 0x1000 
+esptool --port COM5 --baud 460800 write_flash 0x1000 {bin}
+
+c3 mini
+esptool --port COM6 erase_flash
+esptool --port COM6 --baud 460800 write_flash 0 {bin}
+
+OTA:
+# ESP32 OTA + WebREPL - todo listo para copiar y pegar
+
+# --- boot.py ---
+import network, time
+w = network.WLAN(network.STA_IF)
+w.active(True)
+w.connect("TU_WIFI","TU_PASS")
+while not w.isconnected(): time.sleep(0.2)
+print("WiFi OK")
+
+# --- main.py ---
+import urequests, machine
+print("App v1")
+def ota_update():
+    r = urequests.get("http://TU_SERVER/main.py")
+    open("main.py","w").write(r.text)
+    r.close()
+    machine.reset()
+
+# Llamar ota_update() cuando quieras actualizar
+# ota_update()
+
+# --- WebREPL configuración ---
+# Conectarse por USB o mpremote: mpremote connect COM4 repl
+# Ejecutar en REPL:
+# import webrepl_setup
+# Seguir instrucciones (activar y poner contraseña)
+# import machine; machine.reset()
+
+# --- Conexión WebREPL ---
+# Abrir navegador: https://micropython.org/webrepl/
+# Poner IP del ESP32 + contraseña
+# Ejecutar en WebREPL: from main import ota_update; ota_update()
+
+python -m http.server 8000
+en la carpeta de main.py
+
+https://micropython.org/webrepl/

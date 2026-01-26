@@ -1,9 +1,6 @@
 import network
 import socket
 
-# Conectar a Wi-Fi
-ssid = "MIWIFI_mcCb"
-password = "4ERT3RhP"
 
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)

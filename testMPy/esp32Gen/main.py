@@ -4,7 +4,7 @@ from bluetooth import BLE
 # --- Wi-Fi ---
 w = network.WLAN(network.STA_IF)
 w.active(True)
-w.connect("MIWIFI_mcCb","4ERT3RhP")
+
 while not w.isconnected(): time.sleep(0.2)
 ip = w.ifconfig()[0]
 print("IP del ESP32:", ip)
