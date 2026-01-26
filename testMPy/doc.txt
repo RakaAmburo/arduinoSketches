@@ -64,4 +64,4 @@ def ota_update():
 python -m http.server 8000
 en la carpeta de main.py
 
-https://micropython.org/webrepl/
+python webrepl_cli.py -p TU_PASS ws://IP_ESP32:8266/
