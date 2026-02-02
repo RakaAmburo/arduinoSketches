@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP Controller</title>
+    <style>
+        body { font-family: Arial; margin: 20px; text-align: center; }
+        h1 { color: #333; }
+        .btn { 
+            padding: 20px; 
+            font-size: 18px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer;
+            width: 100%;
+        }
+        .on { background: #4CAF50; color: white; }
+        .off { background: #f44336; color: white; }
+        #status { margin-top: 15px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>ESP Controller</h1>
+    <button id="toggleBtn" class="btn off">Turn ON</button>
+    <div id="status">Status: OFF</div>
+
+    <script>
+        let currentState = "off";
+        
+        async function sendState(state) {
+            const statusEl = document.getElementById('status');
+            const btn = document.getElementById('toggleBtn');
+            
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/control', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({status: state})
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                currentState = state;
+                
+                if (state === "on") {
+                    btn.textContent = "Tu4n OFF";
+                    btn.className = "btn on";
+                    statusEl.textContent = "Device is ON";
+                } else {
+                    btn.textContent = "Turn ON";
+                    btn.className = "btn off";
+                    statusEl.textContent = "Device is OFF";
+                }
+                
+                console.log('Response:', data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.textContent = `Error: ${error.message}`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        function toggleState() {
+            sendState(currentState === "off" ? "on" : "off");
+        }
+        
+        document.getElementById('toggleBtn').addEventListener('click', toggleState);
+    </script>
+</body>
+</html>

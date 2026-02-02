@@ -13,6 +13,7 @@ esptool --port COM4 write_flash 0x1000 .\ESP8266_GENERIC-20251209-v1.27.0.bin
 
 esptool --port COM4 --baud 460800 write_flash --flash_size=detect -fm dout 0 .\ESP8266_GENERIC-20251209-v1.27.0.bin
 
+mpremote ls
 mpremote connect list
 mpremote connect COM4 cp main.py :
 mpremote connect COM4 run main.py
@@ -54,7 +55,8 @@ def ota_update():
 # Ejecutar en REPL:
 # import webrepl_setup
 # Seguir instrucciones (activar y poner contraseña)
-# import machine; machine.reset()
+import machine
+machine.reset()
 
 # --- Conexión WebREPL ---
 # Abrir navegador: https://micropython.org/webrepl/
@@ -64,4 +66,46 @@ def ota_update():
 python -m http.server 8000
 en la carpeta de main.py
 
-python webrepl_cli.py -p TU_PASS ws://IP_ESP32:8266/
+python webrepl_cli.py -p 1234 ws://192.168.1.179:8266/
+
+import webrepl
+webrepl.start()
+
+
+import upip
+upip.install('picoweb')
+
+
+# Python pyminifier
+pyminifier --remove-comments microdot.py > microdot_min.py
+
+# O manual con sed (Linux/Mac)
+sed '/^[ \t]*#/d; /^"""/,/^"""/d; /^[ \t]*$/d' microdot.py
+# Instalar en tu computadora
+pip install pyminifier
+
+# Minificar un archivo
+pyminifier --remove-comments microdot.py > microdot_min.py
+
+# O más agresivo (también renombra variables)
+pyminifier --obfuscate microdot.py > microdot_min.py
+
+import esp
+import gc
+import os
+
+# 1. MEMORIA RAM
+print("=== RAM ===")
+print("Libre:", gc.mem_free(), "bytes")       # Memoria disponible AHORA
+print("Total :", gc.mem_alloc() + gc.mem_free(), "bytes")  # Total RAM
+
+# 2. MEMORIA FLASH (almacenamiento)
+print("\n=== FLASH ===")
+print("Total:", esp.flash_size(), "bytes")    # Tamaño total flash
+fs_stat = os.statvfs('/')
+print("Libre:", fs_stat[0] * fs_stat[3], "bytes")  # Bytes libres en filesystem
+
+# 3. RESUMEN
+print("\n=== RESUMEN ===")
+print("RAM libre:  {:,} bytes".format(gc.mem_free()))
+print("Flash libre: {:,} bytes".format(fs_stat[0] * fs_stat[3]))

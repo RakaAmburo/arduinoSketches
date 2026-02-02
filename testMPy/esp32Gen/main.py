@@ -1,10 +1,13 @@
 import network, bluetooth, uasyncio as asyncio, time
 from bluetooth import BLE
+import secrets
+
+
 
 # --- Wi-Fi ---
 w = network.WLAN(network.STA_IF)
 w.active(True)
-
+w.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
 while not w.isconnected(): time.sleep(0.2)
 ip = w.ifconfig()[0]
 print("IP del ESP32:", ip)
