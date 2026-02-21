@@ -14,6 +14,31 @@ void setup() {
 
 void loop() {  // run over and over
 
+  if (Serial.available()) {
+    char buffer[10];  // Buffer pequeño
+    int i = 0;
+    
+    // Leer hasta salto de línea o máximo 9 caracteres
+    while (Serial.available() && i < 9) {
+      char c = Serial.read();
+      if (c == '\n') break;
+      buffer[i++] = c;
+    }
+    buffer[i] = '\0';  // Terminar string
+    
+    // Comparación directa (sin String)
+    if (strcmp(buffer, "send") == 0) {
+      mySerial.write("B");
+      Serial.println("sending");
+      delay(1000);
+      
+      // Respuesta rápida
+      while (mySerial.available()) {
+        Serial.write(mySerial.read());
+      }
+      Serial.println();  // Nueva línea después
+    }
+  }
 
   if (digitalRead(7) == LOW) {
 

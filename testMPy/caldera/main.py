@@ -2,6 +2,7 @@ import webrepl
 from microdot import Microdot
 from machine import Pin
 import ujson
+import gc
 
 relay = Pin(5, Pin.OUT)
 relay_state = False
@@ -12,9 +13,22 @@ app = Microdot()
 
 @app.route('/')
 def index(request):
-    with open('pagina.html', 'r') as f:
-        # return f.read()
-        return f.read(), 202, {'Content-Type': 'text/html'}
+    with open('pagina_min.html', 'r') as f:
+        html = f.read()
+    
+    respuesta = html, 200, {'Content-Type': 'text/html'}
+    
+    # Liberación manual
+    del html  # Elimina referencia
+    gc.collect()  # Fuerza limpieza inmediata
+    
+    return respuesta
+
+@app.route('/status', methods=['GET'])
+def estado(request):
+    global relay_state
+    status = "on" if relay_state else "off"
+    return ujson.dumps({'status': status})
 
 @app.route('/control', methods=['POST'])
 def control_handler(request):

@@ -109,3 +109,5 @@ print("Libre:", fs_stat[0] * fs_stat[3], "bytes")  # Bytes libres en filesystem
 print("\n=== RESUMEN ===")
 print("RAM libre:  {:,} bytes".format(gc.mem_free()))
 print("Flash libre: {:,} bytes".format(fs_stat[0] * fs_stat[3]))
+
+python -m http.server 8001
