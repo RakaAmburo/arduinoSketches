@@ -4,3 +4,4 @@ testMPy/ESP32_GENERIC-SPIRAM-20251209-v1.27.0.bin
 testMPy/ESP8266_GENERIC-20251209-v1.27.0.bin
 testMPy/secrets.py
 __pycache__/
+secrets.h

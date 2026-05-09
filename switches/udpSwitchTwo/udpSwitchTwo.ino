@@ -2,8 +2,7 @@
 #include <WiFiUdp.h>
 
 #define UDP_PORT 8286
-#define WIFI_SSID ""
-#define WIFI_PASS ""
+#include "secrets.h"
 
 const int touch1Pin = D6;
 int touch1Status = HIGH;
