@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 #define UDP_PORT 8286
 #include "secrets.h"
@@ -44,6 +45,11 @@ void setup() {
 
   wifiCheckAndConnect();
 
+  // OTA
+  ArduinoOTA.setHostname("switch-laundry");
+  ArduinoOTA.setPassword(OTA_PASS);
+  ArduinoOTA.begin();
+
   UDP.begin(UDP_PORT);
 
   //Check the starting status of the buttons just in case
@@ -55,6 +61,8 @@ void setup() {
 
 
 void loop() {
+
+  ArduinoOTA.handle();
 
   if (millis() - lastCheck > checkInterval) {
     lastCheck = millis();
@@ -114,14 +122,12 @@ void loop() {
     touch1PrevStatus = touch1Status;
     s1 = !s1;
     digitalWrite(D2, s1);
-    //Serial.println(s1);
   }
   touch2Status = digitalRead(touch2Pin);
   if (touch2Status != touch2PrevStatus) {
     touch2PrevStatus = touch2Status;
     s2 = !s2;
     digitalWrite(D3, s2);
-    //Serial.println(s2);
   }
   delay(10);
 }
@@ -142,7 +148,6 @@ void wifiCheckAndConnect() {
   if (WiFi.status() != WL_CONNECTED) {
     connAttempts++;
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    //Serial.println("Connecting...");
 
     if (connAttempts > maxFiledAttempts){ 
       checkInterval = deleyedInterval;
@@ -150,6 +155,5 @@ void wifiCheckAndConnect() {
   } else {
     connAttempts = 0;
     checkInterval = initInterval;
-    //Serial.println("Connected doing nothing");
   }
 }
