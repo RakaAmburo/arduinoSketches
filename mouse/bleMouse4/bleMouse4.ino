@@ -93,9 +93,6 @@ void setup() {
   pinMode(RIGHT_BUTTON_PIN, INPUT);
   lastActivityTime = millis();
   Serial.println("[Setup] Listo.");
-  // DEBUG: activar WiFi automaticamente al arrancar
-  wifiEnabled = true;
-  startWifi();
 }
 
 bool isStableSignal(int8_t reading, int &stableCount) {
