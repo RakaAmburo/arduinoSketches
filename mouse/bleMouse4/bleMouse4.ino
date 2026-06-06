@@ -115,12 +115,12 @@ void moveMouseGradually(int x, int y) {
 }
 
 void loop() {
+  if (wifiEnabled) ArduinoOTA.handle();
+
   if (!Keyboard.isConnected()) {
     delay(100);
     return;
   }
-
-  if (wifiEnabled) ArduinoOTA.handle();
 
   if (millis() - lastActivityTime >= INACTIVITY_TIMEOUT_MS) {
     enterDeepSleep();
