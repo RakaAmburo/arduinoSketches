@@ -7,8 +7,8 @@
 #define BUZZER_PIN  2
 #define MQTT_BROKER "192.168.1.135"
 #define MQTT_PORT   1883
-#define TOPIC_CMD   "pltrx/cmd"
-#define TOPIC_LOG   "pltrx/log"
+#define TOPIC_CMD   "pltrx/receiver/cmd"
+#define TOPIC_LOG   "pltrx/receiver/log"
 
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
@@ -18,7 +18,6 @@ void mqttLog(const char* msg) {
   mqtt.publish(TOPIC_LOG, msg);
 }
 
-// --- Envio por powerline ---
 void waitAck() {
   unsigned long t = millis();
   while (millis() - t < 15000) {
@@ -35,11 +34,10 @@ void sendB() {
   Serial1.write("B\n");
   Serial1.flush();
   delay(500);
-  while (Serial1.available()) Serial1.read();  // limpia ruido
+  while (Serial1.available()) Serial1.read();
   waitAck();
 }
 
-// --- Recepcion por powerline ---
 void handlePowerline() {
   if (Serial1.available()) {
     delay(200);
