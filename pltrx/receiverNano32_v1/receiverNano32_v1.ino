@@ -4,10 +4,14 @@
 #include "secrets.h"
 
 #define BUZZER_PIN  5
+#define MY_CMD      'B'
 #define MQTT_BROKER "192.168.1.135"
 #define MQTT_PORT   1883
 #define TOPIC_CMD   "pltrx/receiver/cmd"
 #define TOPIC_LOG   "pltrx/receiver/log"
+
+#define PL_PREAMBLE 0xAA
+#define PL_SUFFIX   0xFF
 
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
@@ -17,58 +21,41 @@ void mqttLog(const char* msg) {
   mqtt.publish(TOPIC_LOG, msg);
 }
 
-void waitAck() {
-  unsigned long t = millis();
-  while (millis() - t < 15000) {
-    if (Serial1.available()) {
-      byte b = Serial1.read();
-      if (b == 'K') { mqttLog("ACK recibido ok"); return; }
-    }
-  }
-  mqttLog("sin respuesta (timeout)");
-}
-
-void sendB() {
-  mqttLog("enviando B...");
-  Serial1.write("B\n");
-  Serial1.flush();
-  delay(500);
-  while (Serial1.available()) Serial1.read();
-  waitAck();
-}
-
 void handlePowerline() {
-  if (Serial1.available()) {
-    delay(200);
-    String str = "";
-    while (Serial1.available()) {
-      char c = (char)Serial1.read();
-      if (c >= 32 && c <= 126) str += c;
-    }
-    if (str.length() == 0) return;
-    char logbuf[64];
-    snprintf(logbuf, sizeof(logbuf), "recibido: [%s]", str.c_str());
-    mqttLog(logbuf);
+  static byte state = 0;
+  static byte cmdByte = 0;
 
-    if (str.indexOf("B") != -1) {
-      mqttLog("B encontrado - activando bocina");
-
-      //digitalWrite(BUZZER_PIN, LOW);
-      //delay(1000);
-      //digitalWrite(BUZZER_PIN, HIGH);
-
-      mqttLog("enviando K");
-      delay(500);
-      Serial1.write("K\n");
+  while (Serial1.available()) {
+    byte b = Serial1.read();
+    switch (state) {
+      case 0:
+        if (b == PL_PREAMBLE) state = 1;
+        break;
+      case 1:
+        cmdByte = b;
+        state = 2;
+        break;
+      case 2:
+        if (b == PL_SUFFIX) {
+          char logbuf[32];
+          snprintf(logbuf, sizeof(logbuf), "recibido cmd: %c", cmdByte);
+          mqttLog(logbuf);
+          if (cmdByte == MY_CMD) {
+            mqttLog("activando bocina");
+            digitalWrite(BUZZER_PIN, LOW);
+            delay(1000);
+            digitalWrite(BUZZER_PIN, HIGH);
+            mqttLog("enviando K");
+            delay(200);
+            Serial1.write((byte)PL_PREAMBLE);
+            Serial1.write((byte)'K');
+            Serial1.write((byte)PL_SUFFIX);
+          }
+        }
+        state = 0;
+        break;
     }
   }
-}
-
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  char msg[32] = {0};
-  if (length >= sizeof(msg)) return;
-  memcpy(msg, payload, length);
-  if (strcmp(msg, "send B") == 0) sendB();
 }
 
 void mqttConnect() {
@@ -102,6 +89,10 @@ void setup() {
   mqtt.setCallback(mqttCallback);
   mqttConnect();
   mqttLog("listo - 9600bps");
+}
+
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+  // reservado para uso futuro
 }
 
 void loop() {
