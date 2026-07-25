@@ -3,14 +3,11 @@
 #include <PubSubClient.h>
 #include "secrets.h"
 
-#define BUTTON_PIN  D7
+#define BUTTON_PIN D7
 #define MQTT_BROKER "192.168.1.135"
 #define MQTT_PORT   1883
 #define TOPIC_CMD   "pltrx/cmd"
 #define TOPIC_LOG   "pltrx/log"
-
-#define PL_PREAMBLE 0xAA
-#define PL_SUFFIX   0xFF
 
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
@@ -31,13 +28,9 @@ void waitAck() {
   mqttLog("sin respuesta (timeout)");
 }
 
-void sendCmd(char cmd) {
-  char logbuf[32];
-  snprintf(logbuf, sizeof(logbuf), "enviando cmd: %c", cmd);
-  mqttLog(logbuf);
-  Serial1.write((byte)PL_PREAMBLE);
-  Serial1.write((byte)cmd);
-  Serial1.write((byte)PL_SUFFIX);
+void sendB() {
+  mqttLog("enviando B...");
+  Serial1.write("B\n");
   Serial1.flush();
   delay(500);
   while (Serial1.available()) Serial1.read();  // limpia ruido
@@ -45,8 +38,10 @@ void sendCmd(char cmd) {
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  if (length == 0 || length > 1) return;
-  sendCmd((char)payload[0]);
+  char msg[32] = {0};
+  if (length >= sizeof(msg)) return;
+  memcpy(msg, payload, length);
+  if (strcmp(msg, "send B") == 0) sendB();
 }
 
 void mqttConnect() {
@@ -88,7 +83,7 @@ void loop() {
   mqtt.loop();
 
   if (digitalRead(BUTTON_PIN) == LOW) {
-    sendCmd('B');
+    sendB();
     delay(500);
   }
 
