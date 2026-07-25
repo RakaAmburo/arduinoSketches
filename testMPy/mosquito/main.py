@@ -4,7 +4,7 @@ from umqtt.simple import MQTTClient
 import secrets
 
 # CONFIGURACIÓN
-MQTT_BROKER = "192.168.1.157"  # IP de tu PC
+MQTT_BROKER = "192.168.1.135"  # IP de tu PC
 MQTT_PORT = 1883
 CLIENT_ID = "esp32_client"
 TOPIC_IN = "comando"      # Escucha comandos (lo que envía publicador.py)
