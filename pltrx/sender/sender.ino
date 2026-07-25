@@ -13,7 +13,8 @@ void setup() {
 }
 
 void loop() {  // run over and over
-
+  //stty -F /dev/ttyUSB0 9600 cs8 -cstopb -parenb raw -hupcl *** sleep 0.1 && printf "send\n" > /dev/ttyUSB0
+  //printf "send\n" > /dev/ttyUSB0 --- cat /dev/ttyUSB0 *** python3 ~/send_pltrx.py send B
   if (Serial.available()) {
     char buffer[10];  // Buffer pequeño
     int i = 0;

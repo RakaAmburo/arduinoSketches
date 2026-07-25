@@ -3,11 +3,11 @@
 #include <PubSubClient.h>
 #include "secrets.h"
 
-#define BUZZER_PIN  5
+#define BUTTON_PIN D7
 #define MQTT_BROKER "192.168.1.135"
 #define MQTT_PORT   1883
-#define TOPIC_CMD   "pltrx/receiver/cmd"
-#define TOPIC_LOG   "pltrx/receiver/log"
+#define TOPIC_CMD   "pltrx/cmd"
+#define TOPIC_LOG   "pltrx/log"
 
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
@@ -33,35 +33,8 @@ void sendB() {
   Serial1.write("B\n");
   Serial1.flush();
   delay(500);
-  while (Serial1.available()) Serial1.read();
+  while (Serial1.available()) Serial1.read();  // limpia ruido
   waitAck();
-}
-
-void handlePowerline() {
-  if (Serial1.available()) {
-    delay(200);
-    String str = "";
-    while (Serial1.available()) {
-      char c = (char)Serial1.read();
-      if (c >= 32 && c <= 126) str += c;
-    }
-    if (str.length() == 0) return;
-    char logbuf[64];
-    snprintf(logbuf, sizeof(logbuf), "recibido: [%s]", str.c_str());
-    mqttLog(logbuf);
-
-    if (str.indexOf("B") != -1) {
-      mqttLog("B encontrado - activando bocina");
-
-      //digitalWrite(BUZZER_PIN, LOW);
-      //delay(1000);
-      //digitalWrite(BUZZER_PIN, HIGH);
-
-      mqttLog("enviando K");
-      delay(500);
-      Serial1.write("K\n");
-    }
-  }
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
@@ -73,7 +46,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
 void mqttConnect() {
   while (!mqtt.connected()) {
-    if (mqtt.connect("receiverNano32")) {
+    if (mqtt.connect("senderNano32")) {
       mqtt.subscribe(TOPIC_CMD);
       mqttLog("MQTT conectado");
     } else {
@@ -85,8 +58,7 @@ void mqttConnect() {
 void setup() {
   Serial.begin(115200);
   Serial1.begin(9600, SERIAL_8N1, 4, 3);  // RX=D4, TX=D3
-  pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, HIGH);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   WiFi.setAutoReconnect(true);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -94,7 +66,7 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
   Serial.print(" IP: "); Serial.println(WiFi.localIP());
 
-  ArduinoOTA.setHostname("pltrx-receiver");
+  ArduinoOTA.setHostname("pltrx-sender");
   ArduinoOTA.setPassword(OTA_PASS);
   ArduinoOTA.begin();
 
@@ -110,7 +82,10 @@ void loop() {
   if (!mqtt.connected()) mqttConnect();
   mqtt.loop();
 
-  handlePowerline();
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    sendB();
+    delay(500);
+  }
 
   delay(10);
 }
