@@ -21,6 +21,12 @@ void mqttLog(const char* msg) {
   mqtt.publish(TOPIC_LOG, msg);
 }
 
+void sendAck() {
+  Serial1.write((byte)PL_PREAMBLE);
+  Serial1.write((byte)'K');
+  Serial1.write((byte)PL_SUFFIX);
+}
+
 void handlePowerline() {
   static byte state = 0;
   static byte cmdByte = 0;
@@ -40,16 +46,15 @@ void handlePowerline() {
           char logbuf[32];
           snprintf(logbuf, sizeof(logbuf), "recibido cmd: %c", cmdByte);
           mqttLog(logbuf);
+
           if (cmdByte == MY_CMD) {
             mqttLog("activando bocina");
-            digitalWrite(BUZZER_PIN, LOW);
-            delay(1000);
-            digitalWrite(BUZZER_PIN, HIGH);
+            //digitalWrite(BUZZER_PIN, LOW);
+            //delay(1000);
+            //digitalWrite(BUZZER_PIN, HIGH);
             mqttLog("enviando K");
-            delay(200);
-            Serial1.write((byte)PL_PREAMBLE);
-            Serial1.write((byte)'K');
-            Serial1.write((byte)PL_SUFFIX);
+            delay(500);
+            sendAck();
           }
         }
         state = 0;
