@@ -5,6 +5,7 @@
 
 #define BUZZER_PIN  5
 #define MY_CMD      'B'
+#define MY_CMD_2      'b'
 #define MQTT_BROKER "192.168.1.135"
 #define MQTT_PORT   1883
 #define TOPIC_CMD   "pltrx/receiver/cmd"
@@ -22,9 +23,10 @@ void mqttLog(const char* msg) {
 }
 
 void sendAck() {
-  Serial1.write((byte)PL_PREAMBLE);
+  while (Serial1.available()) Serial1.read();
+  //Serial1.write((byte)PL_PREAMBLE);
   Serial1.write((byte)'K');
-  Serial1.write((byte)PL_SUFFIX);
+  //Serial1.write((byte)PL_SUFFIX);
 }
 
 void handlePowerline() {
@@ -47,13 +49,13 @@ void handlePowerline() {
           snprintf(logbuf, sizeof(logbuf), "recibido cmd: %c", cmdByte);
           mqttLog(logbuf);
 
-          if (cmdByte == MY_CMD) {
+          if (cmdByte == MY_CMD || cmdByte == MY_CMD_2) {
             mqttLog("activando bocina");
             //digitalWrite(BUZZER_PIN, LOW);
             //delay(1000);
             //digitalWrite(BUZZER_PIN, HIGH);
             mqttLog("enviando K");
-            delay(500);
+            delay(450);
             sendAck();
           }
         }

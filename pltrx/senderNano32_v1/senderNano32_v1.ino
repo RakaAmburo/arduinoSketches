@@ -22,7 +22,7 @@ void mqttLog(const char* msg) {
 
 void waitAck() {
   unsigned long t = millis();
-  while (millis() - t < 15000) {
+  while (millis() - t < 5000) {
     if (Serial1.available()) {
       byte b = Serial1.read();
       if (b == 'K') { mqttLog("ACK recibido ok"); return; }
